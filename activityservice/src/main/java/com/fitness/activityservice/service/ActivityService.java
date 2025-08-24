@@ -10,6 +10,11 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Service layer for activity-related business logic.
+ * Handles activity tracking and retrieval operations.
+ * Converts between entity and DTO objects.
+ */
 @Service
 @RequiredArgsConstructor
 public class ActivityService {

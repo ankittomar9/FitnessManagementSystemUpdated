@@ -8,6 +8,11 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+/**
+ * Service layer for user-related business logic.
+ * Handles user registration and profile management.
+ * Uses UserRepository for data access.
+ */
 @Service
 public class UserService {
 

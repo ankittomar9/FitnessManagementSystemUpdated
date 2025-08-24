@@ -5,6 +5,11 @@ import lombok.Data;
 
 import java.time.LocalDateTime;
 import java.util.Map;
+
+/**
+ * DTO for activity creation requests.
+ * Used to receive activity data from client requests.
+ */
 @Data
 public class ActivityRequest {
     private String userId;

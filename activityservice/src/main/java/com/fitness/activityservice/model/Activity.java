@@ -12,6 +12,12 @@ import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.time.LocalDateTime;
 import java.util.Map;
+
+/**
+ * Entity class representing a fitness activity.
+ * Maps to 'activities' collection in MongoDB.
+ * Includes audit fields for creation and modification timestamps.
+ */
 @Document(collection = "activities")
 @Data
 @Builder

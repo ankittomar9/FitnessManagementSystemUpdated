@@ -8,6 +8,11 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+/**
+ * REST controller for handling user-related HTTP requests.
+ * Exposes endpoints for user registration and profile retrieval.
+ * Uses UserService for business logic.
+ */
 @RestController
 @RequestMapping("api/users")
 @AllArgsConstructor

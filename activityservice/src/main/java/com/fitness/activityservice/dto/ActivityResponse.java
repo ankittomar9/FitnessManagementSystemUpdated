@@ -5,6 +5,11 @@ import lombok.Data;
 import java.time.LocalDateTime;
 import java.util.Map;
 
+/**
+ * DTO for activity data responses.
+ * Used to send activity data to clients.
+ * Excludes sensitive or unnecessary fields from the Activity entity.
+ */
 @Data
 public class ActivityResponse {
 

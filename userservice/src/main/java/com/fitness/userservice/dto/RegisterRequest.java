@@ -5,6 +5,10 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 
+/**
+ * DTO for user registration requests.
+ * Includes validation annotations for request data.
+ */
 @Data
 public class RegisterRequest {
     @NotBlank(message = "Email is required")

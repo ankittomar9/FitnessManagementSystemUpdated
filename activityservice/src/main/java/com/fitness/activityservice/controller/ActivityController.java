@@ -9,6 +9,11 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+/**
+ * REST controller for activity-related endpoints.
+ * Handles tracking new activities and retrieving activity data.
+ * Requires user authentication via X-USER-ID header.
+ */
 @RestController
 @RequestMapping("/api/activities")
 @AllArgsConstructor
