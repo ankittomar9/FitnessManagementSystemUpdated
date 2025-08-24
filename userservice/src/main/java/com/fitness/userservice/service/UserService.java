@@ -8,5 +8,6 @@ public class UserService {
 
 
     public UserResponse getUserProfile(String userId) {
+
     }
 }
