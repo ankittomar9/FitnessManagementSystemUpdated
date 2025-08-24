@@ -3,16 +3,16 @@ package com.fitness.userservice.service;
 import com.fitness.userservice.dto.RegisterRequest;
 import com.fitness.userservice.dto.UserResponse;
 import com.fitness.userservice.models.User;
+import com.fitness.userservice.repository.UserRepository;
 import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
 public class UserService {
 
-
-    public UserResponse getUserProfile(String userId) {
-
-    }
+    @Autowired
+    private UserRepository repository;
 
     public UserResponse register(@Valid RegisterRequest request) {
         User user = new User();
@@ -21,7 +21,15 @@ public class UserService {
         user.setFirstName(request.getFirstName());
         user.setLastName(request.getLastName());
 
-        saveUser(user);
-        return UserResponse.fromUser(user);
+        User savedUser =  repository.save(user);
+        UserResponse response = new UserResponse();
+        response.setUserId(savedUser.getId());
+        response.setPassword(savedUser.getPassword());
+        response.setFirstName(savedUser.getFirstName());
+        response.setLastName(savedUser.getLastName());
+        response.setEmail(savedUser.getEmail());
+        response.setCreatedAt(savedUser.getCreatedAt());
+        response.setUpdatedAt(savedUser.getUpdatedAt());
+        return response;
     }
 }
