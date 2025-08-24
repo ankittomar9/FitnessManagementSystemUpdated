@@ -14,7 +14,13 @@ public class UserService {
     @Autowired
     private UserRepository repository;
 
+
+
     public UserResponse register(@Valid RegisterRequest request) {
+        if(repository.existsByEmail(request.getEmail())) {
+            throw new RuntimeException("Email already exists");
+        }
+
         User user = new User();
         user.setEmail(request.getEmail());
         user.setPassword(request.getPassword());
