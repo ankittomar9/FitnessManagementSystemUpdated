@@ -39,3 +39,25 @@ public class ActivityController {
 
 
 }
+
+/*
+* sequenceDiagram
+    participant Client
+    participant ActivityService
+    participant UserValidationService
+    participant UserService
+
+    Client->>ActivityService: POST /api/activities (trackActivity)
+    ActivityService->>UserValidationService: validateUser(userId)
+    UserValidationService->>UserService: GET /api/users/{userId}/validate
+    UserService-->>UserValidationService: Boolean response (true/false)
+    alt User not found
+        UserValidationService-->>ActivityService: false or throws exception
+        ActivityService-->>Client: 404 Not Found
+    else User valid
+        ActivityService->>ActivityRepository: save(activity)
+        ActivityRepository-->>ActivityService: Saved activity
+        ActivityService-->>Client: 201 Created with activity details
+    end
+* */
+
