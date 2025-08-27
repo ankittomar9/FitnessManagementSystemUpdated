@@ -5,6 +5,7 @@ import com.fitness.activityservice.dto.ActivityRequest;
 import com.fitness.activityservice.dto.ActivityResponse;
 import com.fitness.activityservice.model.Activity;
 import lombok.RequiredArgsConstructor;
+import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -23,6 +24,11 @@ public class ActivityService {
 
     private final ActivityRepository activityRepository;
     private final UserValidationService userValidationService;
+
+    @Value("${rabbitmq.exchange.name}")
+    private String exchange;
+    @Value("${rabbitmq.routing.key}")
+    private String routingKey;
 
     public ActivityResponse trackActivity(ActivityRequest request) {
         log.info("Received request to track activity for user: {}", request.getUserId());
@@ -52,8 +58,14 @@ public class ActivityService {
             Activity savedActivity = activityRepository.save(activity);
             log.info("Successfully saved activity with ID: {} for user: {}", 
                     savedActivity.getId(), savedActivity.getUserId());
-                    
+
+            //Publish activity to RabbitMQ for AI Processing
+
+
+
+
             return mapToResponse(savedActivity);
+
         } catch (Exception e) {
             log.error("Error tracking activity for user: {}", request.getUserId(), e);
             throw new RuntimeException("Failed to track activity: " + e.getMessage(), e);

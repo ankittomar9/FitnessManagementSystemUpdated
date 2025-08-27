@@ -1,6 +1,5 @@
 package com.fitness.activityservice.config;
 
-import com.rabbitmq.client.AMQP;
 import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.amqp.support.converter.MessageConverter;
