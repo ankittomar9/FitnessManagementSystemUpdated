@@ -12,15 +12,17 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class ActivityMessageListener {
 
-    // Injects values from application.yml
+    // Injects the queue name from application.yml
     @Value("${rabbitmq.queue.name}")
     private String queueName;
 
-    @RabbitListener(queues = "activity.queue")
-
-
+    /**
+     * Listens to the queue specified in application.yml
+     * @param activity The deserialized Activity object from the message
+     */
+    @RabbitListener(queues = "#{'${rabbitmq.queue.name}'}")
     public void processActivity(Activity activity) {
-        log.info("Received activity message for processing: {}",activity.getId() );
+        log.info("Received activity message for processing: {}", activity.getId());
+        // Add your message processing logic here
     }
-
 }
