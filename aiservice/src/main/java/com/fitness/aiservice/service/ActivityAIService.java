@@ -1,5 +1,6 @@
 package com.fitness.aiservice.service;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fitness.aiservice.model.Activity;
 import com.fitness.aiservice.model.Recommendation;
