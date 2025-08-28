@@ -15,12 +15,19 @@ public class GeminiService {
         this.webClient = webClientBuilder.build();
     }
 
-    public String getAnswer(String question){
+    public String getAnswer(String question) {
+        String uri = UriComponentsBuilder.fromUriString(geminiApiUrl)
+                .queryParam("key", geminiApiKey)
+                .build()
+                .toUriString();
+
         Map<String, Object> requestBody = Map.of(
-                "contents",new Object[]{
-                        Map.of("text",question)
+                "contents", new Object[]{
+                        Map.of("parts", new Object[]{
+                                Map.of("text", question)
+                        })
                 }
-    }
+        );
 
 
 
