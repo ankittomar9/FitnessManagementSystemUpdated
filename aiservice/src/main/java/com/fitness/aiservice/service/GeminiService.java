@@ -16,7 +16,10 @@ public class GeminiService {
     }
 
     public String getAnswer(String question){
-        Map<String, Object> requestBody =
+        Map<String, Object> requestBody = Map.of(
+                "contents",new Object[]{
+                        Map.of("text",question)
+                }
     }
 
 
