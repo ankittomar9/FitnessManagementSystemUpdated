@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 @Slf4j
 @RequiredArgsConstructor
 public class ActivityMessageListener {
+    private final ActivityAIService aiService;
 
     // Injects the queue name from application.yml
     @Value("${rabbitmq.queue.name}")
@@ -24,5 +25,6 @@ public class ActivityMessageListener {
     public void processActivity(Activity activity) {
         log.info("Received activity message for processing: {}", activity.getId());
         // Add your message processing logic here
+        log.info("Generated Recommendation : {} ",aiService.generateRecommendation(activity));
     }
 }
