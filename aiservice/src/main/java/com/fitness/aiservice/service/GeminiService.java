@@ -10,6 +10,7 @@ import java.util.Map;
 public class GeminiService {
 
         private final WebClient webClient;
+        private String geminiApiKey;
 
     public GeminiService(WebClient.Builder webClientBuilder) {
         this.webClient = webClientBuilder.build();
