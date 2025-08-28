@@ -1,9 +1,26 @@
 package com.fitness.aiservice.service;
 
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.WebClient;
+
+import java.util.Map;
 
 @Service
+
 public class GeminiService {
+
+        private final WebClient webClient;
+
+    public GeminiService(WebClient.Builder webClientBuilder) {
+        this.webClient = webClientBuilder.build();
+    }
+
+    public String getAnswer(String question){
+        Map<String, Object> requestBody =
+    }
+
+
+
 
 
 }
