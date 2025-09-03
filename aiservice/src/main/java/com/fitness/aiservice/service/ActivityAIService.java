@@ -62,7 +62,7 @@ public class ActivityAIService {
             return Recommendation.builder()
                     .activityId(activity.getId())
                     .userId(activity.getUserId())
-                    .activityType(activity.getType())
+                    .activityType(activity.getType().name())// Here as well
                     .recommendation(fullAnalysis.toString().trim())
                     .improvements(improvements)
                     .suggestions(suggestions)
@@ -80,7 +80,7 @@ public class ActivityAIService {
         return Recommendation.builder()
                 .activityId(activity.getId())
                 .userId(activity.getUserId())
-                .activityType(activity.getType())
+                .activityType(activity.getType().name()) // Check needed here
                 .recommendation("Unable to generate detailed analysis")
                 .improvements(Collections.singletonList("Continue with your current routine"))
                 .suggestions(Collections.singletonList("Consider consulting a fitness professional"))
