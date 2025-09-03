@@ -1,52 +1,134 @@
 package com.fitness.aiservice.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fitness.aiservice.model.Activity;
 import com.fitness.aiservice.model.Recommendation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
+/**
+ * Service responsible for generating AI-powered fitness recommendations based on user activities.
+ * 
+ * <p>This service acts as a bridge between the application and the Gemini AI service,
+ * processing activity data and transforming AI responses into structured recommendations.</p>
+ * 
+ * <p>Key Responsibilities:
+ * <ul>
+ *   <li>Generate prompts for the AI based on activity data</li>
+ *   <li>Process AI responses and extract structured recommendations</li>
+ *   <li>Handle errors and retries for AI service calls</li>
+ *   <li>Transform raw AI responses into application domain objects</li>
+ * </ul>
+ * 
+ * @see GeminiService
+ * @see Recommendation
+ * @see Activity
+ */
 @Service
 @Slf4j
 @RequiredArgsConstructor
 public class ActivityAIService {
+    
+    /** Service for interacting with the Gemini AI API */
     private final GeminiService geminiService;
+    
+    /** JSON object mapper for parsing AI responses */
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
+    // Maximum number of retries for AI service calls
+    private static final int MAX_RETRY_ATTEMPTS = 3;
+    private static final long RETRY_DELAY_MS = 1000;
+
+    /**
+     * Generates a personalized fitness recommendation based on the provided activity data.
+     * 
+     * <p>This method orchestrates the recommendation generation process by:
+     * 1. Creating a detailed prompt for the AI
+     * 2. Sending the prompt to the Gemini AI service
+     * 3. Processing and validating the AI response
+     * 4. Converting the response into a structured Recommendation object</p>
+     * 
+     * @param activity The activity data to generate recommendations for
+     * @return A Recommendation object containing AI-generated fitness advice
+     * @throws IllegalStateException if the AI service returns an invalid or empty response
+     */
+    @Retryable(
+        value = {Exception.class},
+        maxAttempts = MAX_RETRY_ATTEMPTS,
+        backoff = @Backoff(delay = RETRY_DELAY_MS, multiplier = 2.0)
+    )
     public Recommendation generateRecommendation(Activity activity) {
-        String prompt = createPromptForActivity(activity);
-        String aiResponse = geminiService.getAnswer(prompt);
-        log.info("RESPONSE FROM AI: {} ", aiResponse);
-        return processAiResponse(activity, aiResponse);
+        Objects.requireNonNull(activity, "Activity cannot be null");
+        log.debug("Generating recommendation for activity: {}", activity.getId());
+        
+        try {
+            String prompt = createPromptForActivity(activity);
+            log.trace("Generated AI prompt for activity {}: {}", activity.getId(), prompt);
+            
+            String aiResponse = geminiService.getAnswer(prompt);
+            log.debug("Received AI response for activity: {}", activity.getId());
+            
+            return processAiResponse(activity, aiResponse);
+            
+        } catch (Exception e) {
+            log.error("Failed to generate recommendation for activity: " + activity.getId(), e);
+            throw new IllegalStateException("Failed to generate AI recommendation", e);
+        }
     }
 
-    private Recommendation processAiResponse(Activity activity, String aiResponse) {
+    /**
+     * Processes the raw AI response and converts it into a structured Recommendation object.
+     * 
+     * <p>This method handles the parsing and validation of the AI response, extracting
+     * the relevant information and mapping it to the Recommendation model.</p>
+     * 
+     * @param activity The original activity that the recommendation is for
+     * @param aiResponse The raw JSON response from the AI service
+     * @return A populated Recommendation object
+     * @throws JsonProcessingException if the AI response cannot be parsed
+     * @throws IllegalStateException if the response is missing required fields
+     */
+    private Recommendation processAiResponse(Activity activity, String aiResponse) 
+            throws JsonProcessingException {
+        
+        if (!StringUtils.hasText(aiResponse)) {
+            throw new IllegalStateException("Empty response received from AI service");
+        }
+
+        log.debug("Processing AI response for activity: {}", activity.getId());
+        
         try {
-            ObjectMapper mapper = new ObjectMapper();
-            JsonNode rootNode = mapper.readTree(aiResponse);
+            // Parse the outer JSON response
+            JsonNode rootNode = objectMapper.readTree(aiResponse);
+            
+            // Navigate to the text content containing the JSON response
+            String jsonContent = rootNode.path("candidates")
+                .path(0)
+                .path("content")
+                .path("parts")
+                .path(0)
+                .path("text")
+                .asText()
+                .replaceAll("```json\\n|", "")
+                .replaceAll("\\n```", "")
+                .trim();
 
-            JsonNode textNode = rootNode.path("candidates")
-                    .get(0)
-                    .path("content")
-                    .path("parts")
-                    .get(0)
-                    .path("text");
-
-            String jsonContent = textNode.asText()
-                    .replaceAll("```json\\n","")
-                    .replaceAll("\\n```", "")
-                    .trim();
-
-//            log.info("PARSED RESPONSE FROM AI: {} ", jsonContent);
-
-            JsonNode analysisJson = mapper.readTree(jsonContent);
+            log.trace("Extracted JSON content from AI response: {}", jsonContent);
+            
+            // Parse the inner JSON content
+            JsonNode analysisJson = objectMapper.readTree(jsonContent);
             JsonNode analysisNode = analysisJson.path("analysis");
 
             StringBuilder fullAnalysis = new StringBuilder();
