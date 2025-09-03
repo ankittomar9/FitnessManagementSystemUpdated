@@ -26,10 +26,23 @@ public class ActivityMessageListener {
      */
     @RabbitListener(queues = "#{'${rabbitmq.queue.name}'}")
     public void processActivity(Activity activity) {
-        log.info("Received activity message for processing: {}", activity.getId());
-        // Add your message processing logic here
-     //   log.info("Generated Recommendation : {} ",aiService.generateRecommendation(activity));
-        Recommendation recommendation = aiService.generateRecommendation(activity);
-        recommendationRepository.save(recommendation);
+        try {
+            log.info("Received activity message for processing: {}", activity.getId());
+            
+            // Generate recommendation
+            log.info("Generating recommendation for activity: {}", activity.getId());
+            Recommendation recommendation = aiService.generateRecommendation(activity);
+            log.debug("Generated recommendation: {}", recommendation);
+            
+            // Save recommendation
+            log.info("Saving recommendation to database...");
+            Recommendation savedRecommendation = recommendationRepository.save(recommendation);
+            log.info("Successfully saved recommendation with id: {}", savedRecommendation.getId());
+            
+        } catch (Exception e) {
+            log.error("Error processing activity: " + activity.getId(), e);
+            // You might want to implement retry logic or dead-letter queue handling here
+            throw e; // Re-throw to trigger RabbitMQ's retry mechanism if configured
+        }
     }
 }
