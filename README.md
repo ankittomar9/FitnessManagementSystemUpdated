@@ -4,11 +4,15 @@ A microservices-based fitness management platform that provides activity trackin
 
 ## 📋 Table of Contents
 - [Architecture Overview](#-architecture-overview)
+  - [API Gateway](#api-gateway)
+  - [Config Server](#config-server)
 - [Prerequisites](#-prerequisites)
 - [Getting Started](#-getting-started)
 - [Service Details](#-service-details)
 - [API Documentation](#-api-documentation)
 - [Deployment](#-deployment)
+  - [Gateway Configuration](#gateway-configuration)
+  - [Config Server Setup](#config-server-setup)
 - [Development](#-development)
 - [Troubleshooting](#-troubleshooting)
 - [License](#-license)
@@ -16,6 +20,30 @@ A microservices-based fitness management platform that provides activity trackin
 ## 🏗️ Architecture Overview
 
 The system follows a microservices architecture with the following components:
+
+### API Gateway
+- **Purpose**: Serves as the single entry point for all client requests
+- **Technology Stack**:
+  - Spring Cloud Gateway (WebFlux-based)
+  - Eureka Client for service discovery
+  - Spring Cloud Config Client for externalized configuration
+- **Key Features**:
+  - Request routing to appropriate microservices
+  - Load balancing between service instances
+  - Cross-cutting concerns handling (CORS, security, monitoring)
+  - Circuit breaking and fault tolerance
+
+### Config Server
+- **Purpose**: Centralized configuration management for all microservices
+- **Technology Stack**:
+  - Spring Cloud Config Server
+  - Git-based configuration repository
+  - Spring Boot 3.5.5
+- **Key Features**:
+  - Externalized configuration for all environments
+  - Versioned configuration management
+  - Encryption/decryption of sensitive properties
+  - Support for different configuration profiles
 
 ```
 ┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
