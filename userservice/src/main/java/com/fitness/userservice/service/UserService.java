@@ -30,15 +30,16 @@ public class UserService {
             if (repository.existsByEmail(request.getEmail())) {
               //  log.warn("Registration failed - Email already exists: {}", request.getEmail());
                 User existingUser = repository.findByEmail(request.getEmail());
-                UserResponse response = new UserResponse();
-                response.setUserId(existingUser.getId());
-                response.setKeycloakId(existingUser.getKeycloakId());
-                response.setPassword(existingUser.getPassword()); // Never expose password in response
-                response.setFirstName(existingUser.getFirstName());
-                response.setLastName(existingUser.getLastName());
-                response.setEmail(existingUser.getEmail());
-                response.setCreatedAt(existingUser.getCreatedAt());
-                response.setUpdatedAt(existingUser.getUpdatedAt());
+                UserResponse userResponse = new UserResponse();
+                userResponse.setUserId(existingUser.getId());
+                userResponse.setKeycloakId(existingUser.getKeycloakId());
+                userResponse.setPassword(existingUser.getPassword()); // Never expose password in userResponse
+                userResponse.setFirstName(existingUser.getFirstName());
+                userResponse.setLastName(existingUser.getLastName());
+                userResponse.setEmail(existingUser.getEmail());
+                userResponse.setCreatedAt(existingUser.getCreatedAt());
+                userResponse.setUpdatedAt(existingUser.getUpdatedAt());
+                return userResponse;
             }
 
             log.debug("Creating new user with email: {}", request.getEmail());
