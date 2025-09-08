@@ -32,7 +32,7 @@ public class UserService {
                 User existingUser = repository.findByEmail(request.getEmail());
 
 
-                UserResponse response = new UserResponse();
+
                 response.setUserId(savedUser.getId());
                 response.setPassword(savedUser.getPassword()); // Never expose password in response
                 response.setFirstName(savedUser.getFirstName());
