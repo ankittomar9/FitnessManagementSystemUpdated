@@ -16,8 +16,9 @@ public class KeyCloakUserSyncFilter implements WebFilter {
     private final UserService userService;
 
 
-    public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain ){
-
+    public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
+    String userId=exchange.getRequest().getHeaders().getFirst("X-User-ID");
+        String token=exchange.getRequest().getHeaders().getFirst("X-User-ID");
     }
 
 
