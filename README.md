@@ -6,6 +6,7 @@ A microservices-based fitness management platform that provides activity trackin
 - [Architecture Overview](#-architecture-overview)
   - [API Gateway](#api-gateway)
   - [Config Server](#config-server)
+  - [Keycloak Authentication](#-keycloak-authentication)
 - [Prerequisites](#-prerequisites)
 - [Getting Started](#-getting-started)
 - [Service Details](#-service-details)
@@ -77,6 +78,43 @@ The system follows a microservices architecture with the following components:
 └─────────────────┘    └─────────────────┘
 ```
 
+## 🔐 Keycloak Authentication
+
+The system uses Keycloak for authentication and authorization. Here's how it's integrated:
+
+### Keycloak Server
+- **Container**: Pre-configured in docker-compose.yml
+- **Admin Console**: http://localhost:8181
+- **Default Admin Credentials**:
+  - Username: `admin`
+  - Password: `admin`
+
+### Keycloak Configuration
+1. **Realm**: `fitness-oauth2` (pre-configured)
+2. **Client**: `fitness-management-client`
+3. **JWT Validation**:
+   - Uses RS256 algorithm
+   - Validates tokens against JWKS endpoint
+   - Token issuer: `http://localhost:8181/realms/fitness-oauth2`
+
+### Secured Endpoints
+All endpoints except the following require a valid JWT token:
+- `/actuator/**`
+- `/v3/api-docs/**`
+- `/swagger-ui/**`
+- `/webjars/**`
+
+### Getting Access Token
+```bash
+curl -X POST 'http://localhost:8181/realms/fitness-oauth2/protocol/openid-connect/token' \
+  --header 'Content-Type: application/x-www-form-urlencoded' \
+  --data-urlencode 'client_id=fitness-management-client' \
+  --data-urlencode 'grant_type=password' \
+  --data-urlencode 'username=user' \
+  --data-urlencode 'password=password' \
+  --data-urlencode 'client_secret=your-client-secret'
+```
+
 ## 🚀 Prerequisites
 
 Before running the application, ensure you have the following installed:
@@ -86,6 +124,7 @@ Before running the application, ensure you have the following installed:
 - Docker and Docker Compose
 - MongoDB 5.0+
 - RabbitMQ 3.9+
+- Keycloak 26.3.3 (managed via Docker)
 - Git
 
 ## 🛠️ Getting Started
@@ -101,7 +140,16 @@ cd FitnessManagementSystemUpdated
 docker-compose up -d
 ```
 
-### 3. Build and run services
+### 3. Configure Keycloak (First Time Setup)
+1. Access Keycloak Admin Console at http://localhost:8181
+2. Log in with admin credentials (admin/admin)
+3. Import the pre-configured realm (if available) or manually create:
+   - Realm: `fitness-oauth2`
+   - Client: `fitness-management-client`
+   - Configure valid redirect URIs and web origins
+   - Set up users and roles as needed
+
+### 4. Build and run services
 ```bash
 # Build all services
 mvn clean install
@@ -140,10 +188,17 @@ cd ../aiservice && mvn spring-boot:run
 
 ## 📚 API Documentation
 
-API documentation is available through Swagger UI when services are running:
+API documentation is available through Swagger UI when services are running. To access protected endpoints:
+
+1. Get an access token from Keycloak
+2. Click the "Authorize" button in Swagger UI
+3. Enter: `Bearer <your_access_token>`
+
+Available services:
 - AI Service: http://localhost:8083/swagger-ui.html
 - Activity Service: http://localhost:8081/swagger-ui.html
 - User Service: http://localhost:8082/swagger-ui.html
+- API Gateway: http://localhost:8080/swagger-ui.html
 
 ## 🚀 Deployment
 
@@ -170,9 +225,36 @@ For production deployment, consider using:
 - `bugfix/*`: Bug fixes
 - `hotfix/*`: Critical production fixes
 
+## 🔑 Security Best Practices
+
+1. **Keycloak Configuration**:
+   - Change default admin credentials in production
+   - Use HTTPS in production environments
+   - Regularly rotate client secrets
+   - Set appropriate token expiration times
+
+2. **JWT Validation**:
+   - Tokens are validated using the JWKS endpoint
+   - Signature verification is enforced
+   - Token expiration is checked
+
+3. **Rate Limiting**:
+   - Implement rate limiting on authentication endpoints
+   - Monitor for suspicious login attempts
+
 ## 🐛 Troubleshooting
 
 ### Common Issues
+
+#### Keycloak Issues
+- **Connection Refused**: Ensure Keycloak container is running (`docker ps`)
+- **Invalid Token**: Verify token audience and issuer match Keycloak configuration
+- **CORS Errors**: Check allowed origins in Keycloak client settings
+
+#### Authentication Issues
+- **401 Unauthorized**: Verify token is valid and not expired
+- **403 Forbidden**: Check user roles and permissions in Keycloak
+- **Token Validation Failed**: Ensure JWKS endpoint is accessible and returning keys
 1. **Port Conflicts**: Ensure required ports are not in use
 2. **Dependency Issues**: Run `mvn clean install -U`
 3. **Database Connection**: Verify MongoDB is running and accessible
