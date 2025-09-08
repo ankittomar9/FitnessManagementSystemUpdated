@@ -35,7 +35,7 @@ public class UserService {
             log.debug("Creating new user with email: {}", request.getEmail());
             User user = new User();
             user.setEmail(request.getEmail());
-            user.setPassword("********"); // Never log actual passwords
+            user.setPassword(request.getPassword()); // Never log actual passwords
             user.setFirstName(request.getFirstName());
             user.setLastName(request.getLastName());
 
@@ -45,7 +45,7 @@ public class UserService {
             
             UserResponse response = new UserResponse();
             response.setUserId(savedUser.getId());
-            response.setPassword("********"); // Never expose password in response
+            response.setPassword(savedUser.getPassword()); // Never expose password in response
             response.setFirstName(savedUser.getFirstName());
             response.setLastName(savedUser.getLastName());
             response.setEmail(savedUser.getEmail());
@@ -93,6 +93,6 @@ public class UserService {
 
     public Boolean existsByUserId(String userId) {
         log.info("Calling User validation API for User with userID: {}", userId);
-        return repository.existsById(userId);
+        return repository.existsByKeycloakId(userId);
     }
 }
