@@ -36,7 +36,7 @@ public class UserService {
                 response.setFirstName(existingUser.getFirstName());
                 response.setLastName(existingUser.getLastName());
                 response.setEmail(existingUser.getEmail());
-                response.setCreatedAt(savedUser.getCreatedAt());
+                response.setCreatedAt(existingUser.getCreatedAt());
                 response.setUpdatedAt(savedUser.getUpdatedAt());
             }
 
