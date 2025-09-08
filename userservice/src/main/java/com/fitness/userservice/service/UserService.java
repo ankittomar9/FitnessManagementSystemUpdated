@@ -28,9 +28,9 @@ public class UserService {
         
         try {
             if (repository.existsByEmail(request.getEmail())) {
-                log.warn("Registration failed - Email already exists: {}", request.getEmail());
-                User savedUser = repository.save(user);
-                log.info("User registered successfully with ID: {}", savedUser.getId());
+              //  log.warn("Registration failed - Email already exists: {}", request.getEmail());
+                User existingUser = repository.findByEmail(request.getEmail());
+
 
                 UserResponse response = new UserResponse();
                 response.setUserId(savedUser.getId());
