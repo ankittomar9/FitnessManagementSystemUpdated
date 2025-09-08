@@ -14,9 +14,9 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) {
         http
             .csrf().disable()
-            .authorizeExchange()
+            .authorizeExchange(exachange -> exachange
         //        .pathMatchers("/actuator/**").permitAll()
-            .anyExchange().permitAll();
+            .anyExchange().authenticated());
         return http.build();
     }
 
