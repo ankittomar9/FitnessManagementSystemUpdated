@@ -22,17 +22,53 @@ A microservices-based fitness management platform that provides activity trackin
 
 The system follows a microservices architecture with the following components:
 
-### API Gateway
-- **Purpose**: Serves as the single entry point for all client requests
-- **Technology Stack**:
-  - Spring Cloud Gateway (WebFlux-based)
-  - Eureka Client for service discovery
-  - Spring Cloud Config Client for externalized configuration
-- **Key Features**:
-  - Request routing to appropriate microservices
-  - Load balancing between service instances
-  - Cross-cutting concerns handling (CORS, security, monitoring)
-  - Circuit breaking and fault tolerance
+## 🚀 API Gateway
+
+The API Gateway serves as the single entry point for all client requests, handling routing, load balancing, and security.
+
+### Technology Stack
+- **Framework**: Spring Cloud Gateway (WebFlux-based)
+- **Service Discovery**: Eureka Client
+- **Configuration**: Spring Cloud Config Client
+- **Communication**: WebClient for reactive service-to-service calls
+- **Security**: Spring Security with JWT validation
+
+### Key Components
+
+#### User Service Client
+Handles all user-related operations by communicating with the User Service.
+
+**Key Classes**:
+- `UserService`: Main service class for user operations
+- `UserResponse`: DTO for user data responses
+- `RegisterRequest`: DTO for user registration requests
+- `WebClientConfig`: Configuration for WebClient instances
+
+**Endpoints**:
+- `POST /api/users/register`: Register a new user
+- `GET /api/users/{userId}/validate`: Validate if a user exists
+
+#### Security Configuration
+- JWT token validation
+- Role-based access control
+- CORS configuration
+- CSRF protection
+
+### Logging Strategy
+- Request/Response logging for all API calls
+- Error logging with appropriate severity levels
+- Sensitive data masking in logs
+
+### Error Handling
+- Custom error responses for different scenarios
+- Proper HTTP status codes
+- Meaningful error messages
+
+### Performance Considerations
+- Reactive, non-blocking I/O
+- Connection pooling
+- Timeout configurations
+- Circuit breaker pattern implementation
 
 ### Config Server
 - **Purpose**: Centralized configuration management for all microservices
