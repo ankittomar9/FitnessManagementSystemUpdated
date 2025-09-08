@@ -37,7 +37,7 @@ public class UserService {
                 response.setLastName(existingUser.getLastName());
                 response.setEmail(existingUser.getEmail());
                 response.setCreatedAt(existingUser.getCreatedAt());
-                response.setUpdatedAt(savedUser.getUpdatedAt());
+                response.setUpdatedAt(existingUser.getUpdatedAt());
             }
 
             log.debug("Creating new user with email: {}", request.getEmail());
