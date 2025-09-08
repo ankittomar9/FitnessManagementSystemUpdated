@@ -24,51 +24,67 @@ The system follows a microservices architecture with the following components:
 
 ## 🚀 API Gateway
 
-The API Gateway serves as the single entry point for all client requests, handling routing, load balancing, and security.
+The API Gateway serves as the single entry point for all client requests, handling routing, load balancing, security, and user synchronization with Keycloak.
 
 ### Technology Stack
-- **Framework**: Spring Cloud Gateway (WebFlux-based)
-- **Service Discovery**: Eureka Client
-- **Configuration**: Spring Cloud Config Client
-- **Communication**: WebClient for reactive service-to-service calls
-- **Security**: Spring Security with JWT validation
+- **Framework**: Spring Cloud Gateway (WebFlux-based, non-blocking)
+- **Service Discovery**: Eureka Client for dynamic service lookup
+- **Configuration**: Spring Cloud Config Client for centralized configuration
+- **Communication**: Reactive WebClient for non-blocking service-to-service calls
+- **Security**: Spring Security with JWT validation and OAuth2 Resource Server
+- **Authentication**: Keycloak integration for identity and access management
 
 ### Key Components
 
-#### User Service Client
+#### 1. User Service Integration
 Handles all user-related operations by communicating with the User Service.
 
 **Key Classes**:
-- `UserService`: Main service class for user operations
-- `UserResponse`: DTO for user data responses
-- `RegisterRequest`: DTO for user registration requests
-- `WebClientConfig`: Configuration for WebClient instances
+- `UserService`: Reactive service for user operations with circuit breaker pattern
+- `UserResponse`: Secure DTO for user data responses with sensitive data protection
+- `RegisterRequest`: Validated DTO for user registration requests
+- `WebClientConfig`: Configures WebClient with load balancing and logging
 
 **Endpoints**:
-- `POST /api/users/register`: Register a new user
-- `GET /api/users/{userId}/validate`: Validate if a user exists
+- `POST /api/users/register`: Register a new user with Keycloak integration
+- `GET /api/users/{userId}/validate`: Validate if a user exists in the system
 
-#### Security Configuration
-- JWT token validation
-- Role-based access control
-- CORS configuration
-- CSRF protection
+#### 2. Security Configuration (`SecurityConfig`)
+- **JWT Token Validation**: Validates tokens against Keycloak realm
+- **CORS Configuration**: Pre-configured for frontend origin (`http://localhost:5173`)
+- **CSRF Protection**: Disabled for stateless JWT authentication
+- **Request Authorization**: All endpoints require authentication by default
+
+#### 3. Keycloak User Synchronization (`KeycloakUserSyncFilter`)
+- Automatically syncs Keycloak users with the local user database
+- Extracts user details from JWT tokens
+- Handles new user registration if not found in the system
+- Adds `X-User-ID` header to downstream requests
+
+### Security Features
+- **JWT Validation**: Validates tokens using Keycloak's public keys
+- **CORS Protection**: Strict origin and method restrictions
+- **Secure Headers**: Only allows specific headers (`Authorization`, `Content-Type`, `X-User-ID`)
+- **Credential Handling**: Secure password management with dummy values for OAuth2 flows
 
 ### Logging Strategy
-- Request/Response logging for all API calls
-- Error logging with appropriate severity levels
-- Sensitive data masking in logs
+- **Request/Response Logging**: Detailed logging of API calls with sensitive data masking
+- **Error Logging**: Multi-level logging (DEBUG, INFO, WARN, ERROR)
+- **Security Events**: Logs authentication and authorization events
+- **Performance Metrics**: Logs request processing times and service latencies
 
 ### Error Handling
-- Custom error responses for different scenarios
-- Proper HTTP status codes
-- Meaningful error messages
+- **Validation Errors**: 400 Bad Request for invalid inputs
+- **Authentication Errors**: 401 Unauthorized for invalid/missing tokens
+- **Authorization Errors**: 403 Forbidden for insufficient permissions
+- **Service Errors**: 5xx errors with appropriate fallbacks
 
-### Performance Considerations
-- Reactive, non-blocking I/O
-- Connection pooling
-- Timeout configurations
-- Circuit breaker pattern implementation
+### Performance Optimization
+- **Non-blocking I/O**: Full reactive stack for high concurrency
+- **Connection Pooling**: Optimized WebClient configuration
+- **Timeouts**: Configurable timeouts for service calls
+- **Circuit Breaker**: Resilience patterns for fault tolerance
+- **Caching**: Response caching where appropriate
 
 ### Config Server
 - **Purpose**: Centralized configuration management for all microservices
@@ -112,6 +128,31 @@ Handles all user-related operations by communicating with the User Service.
 │   (Persistence) |    |   (Optional)    │
 │                 │    │                 │
 └─────────────────┘    └─────────────────┘
+```
+
+## 🔐 Keycloak Integration
+
+The gateway integrates with Keycloak for authentication and user management, providing a seamless SSO experience.
+
+### Key Features
+- **JWT Token Validation**: Validates tokens using Keycloak's public keys
+- **User Synchronization**: Automatically creates local user profiles from Keycloak
+- **Role-Based Access Control**: Integrates with Keycloak roles and permissions
+- **Token Propagation**: Forwards user identity to downstream services
+
+### User Flow
+1. Client authenticates with Keycloak and receives JWT
+2. Gateway validates JWT and extracts user information
+3. If user doesn't exist locally, creates a new user profile
+4. Adds `X-User-ID` header to downstream requests
+5. Proxies request to appropriate microservice
+
+### Configuration
+Keycloak settings are managed through environment variables:
+```properties
+KEYCLOAK_ISSUER_URI=http://localhost:8080/realms/fitness-realm
+KEYCLOAK_RESOURCE=fitness-client
+KEYCLOAK_CREDENTIALS_SECRET=your-client-secret
 ```
 
 ## 🔐 Keycloak Authentication

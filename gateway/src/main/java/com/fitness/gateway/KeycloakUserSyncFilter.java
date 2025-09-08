@@ -14,53 +14,99 @@ import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
 import reactor.core.publisher.Mono;
 
-
-@Component
+/**
+ * WebFilter implementation that synchronizes Keycloak users with the application's user database.
+ * This filter checks if an authenticated user exists in the local database and creates a new user
+ * if they don't exist, using information from the JWT token.
+ */
 @Slf4j
+@Component
 @RequiredArgsConstructor
 public class KeycloakUserSyncFilter implements WebFilter {
+    
+    private static final String AUTHORIZATION_HEADER = "Authorization";
+    private static final String USER_ID_HEADER = "X-User-ID";
+    private static final String DUMMY_PASSWORD = "dummy@123123";
+    
     private final UserService userService;
 
+    /**
+     * Processes the web request to synchronize the authenticated user with the local database.
+     * 
+     * @param exchange The current server exchange
+     * @param chain Provides a way to delegate to the next filter
+     * @return A Mono that completes when request processing is complete
+     */
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
-        String token = exchange.getRequest().getHeaders().getFirst("Authorization");
-        String userId = exchange.getRequest().getHeaders().getFirst("X-User-ID");
+        log.debug("Processing request for user synchronization");
+        
+        String token = exchange.getRequest().getHeaders().getFirst(AUTHORIZATION_HEADER);
+        String userId = exchange.getRequest().getHeaders().getFirst(USER_ID_HEADER);
+        
+        if (token == null) {
+            log.debug("No authorization token found, skipping user synchronization");
+            return chain.filter(exchange);
+        }
+        
         RegisterRequest registerRequest = getUserDetails(token);
-
-        if (userId == null) {
+        
+        if (userId == null && registerRequest != null) {
             userId = registerRequest.getKeycloakId();
+            log.debug("Extracted userId from token: {}", userId);
         }
 
-        if (userId != null && token != null){
+        if (userId != null && token != null) {
             String finalUserId = userId;
+            log.debug("Initiating user validation for userId: {}", userId);
+            
             return userService.validateUser(userId)
-                    .flatMap(exist -> {
-                        if (!exist) {
-                            // Register User
-
+                    .flatMap(exists -> {
+                        if (!exists) {
+                            log.info("User not found in local database. Attempting to register new user: {}", userId);
+                            
                             if (registerRequest != null) {
                                 return userService.registerUser(registerRequest)
+                                        .doOnSuccess(response -> 
+                                            log.info("Successfully registered user: {}", userId)
+                                        )
                                         .then(Mono.empty());
                             } else {
+                                log.warn("Cannot register user: No registration details available for userId: {}", userId);
                                 return Mono.empty();
                             }
                         } else {
-                            log.info("User already exist, Skipping sync.");
+                            log.debug("User already exists in local database. Skipping registration for userId: {}", userId);
                             return Mono.empty();
                         }
                     })
                     .then(Mono.defer(() -> {
+                        log.debug("Adding X-User-ID header to request: {}", userId);
                         ServerHttpRequest mutatedRequest = exchange.getRequest().mutate()
-                                .header("X-User-ID", finalUserId)
+                                .header(USER_ID_HEADER, finalUserId)
                                 .build();
                         return chain.filter(exchange.mutate().request(mutatedRequest).build());
                     }));
         }
+        
+        log.debug("Insufficient information for user synchronization. Proceeding without user sync.");
         return chain.filter(exchange);
     }
 
+    /**
+     * Extracts user details from a JWT token.
+     * 
+     * @param token The JWT token string (with or without 'Bearer ' prefix)
+     * @return RegisterRequest containing user details, or null if parsing fails
+     */
     private RegisterRequest getUserDetails(String token) {
+        if (token == null || token.isBlank()) {
+            log.warn("Cannot extract user details: Token is null or empty");
+            return null;
+        }
+        
         try {
+            log.debug("Extracting user details from JWT token");
             String tokenWithoutBearer = token.replace("Bearer ", "").trim();
             SignedJWT signedJWT = SignedJWT.parse(tokenWithoutBearer);
             JWTClaimsSet claims = signedJWT.getJWTClaimsSet();
@@ -68,12 +114,15 @@ public class KeycloakUserSyncFilter implements WebFilter {
             RegisterRequest registerRequest = new RegisterRequest();
             registerRequest.setEmail(claims.getStringClaim("email"));
             registerRequest.setKeycloakId(claims.getStringClaim("sub"));
-            registerRequest.setPassword("dummy@123123");
+            registerRequest.setPassword(DUMMY_PASSWORD); // Using a dummy password as it's not needed for OAuth2
             registerRequest.setFirstName(claims.getStringClaim("given_name"));
             registerRequest.setLastName(claims.getStringClaim("family_name"));
+            
+            log.debug("Successfully extracted user details for: {}", registerRequest.getEmail());
             return registerRequest;
+            
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Failed to parse JWT token or extract user details: {}", e.getMessage(), e);
             return null;
         }
     }
