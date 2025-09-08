@@ -35,7 +35,7 @@ public class UserService {
                 response.setPassword(existingUser.getPassword()); // Never expose password in response
                 response.setFirstName(existingUser.getFirstName());
                 response.setLastName(existingUser.getLastName());
-                response.setEmail(savedUser.getEmail());
+                response.setEmail(existingUser.getEmail());
                 response.setCreatedAt(savedUser.getCreatedAt());
                 response.setUpdatedAt(savedUser.getUpdatedAt());
             }
