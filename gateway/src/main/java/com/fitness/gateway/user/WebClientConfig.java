@@ -7,6 +7,12 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 @Configuration
 public class WebClientConfig {
+    /**
+     * This method creates a WebClient.Builder bean that can be used to create WebClient instances.
+     * The WebClient is a non-blocking, reactive client for making HTTP requests.
+     // *
+     // @return a WebClient.Builder instance
+     */
 
     @Bean
     @LoadBalanced
@@ -17,9 +23,8 @@ public class WebClientConfig {
     @Bean
     public WebClient userServiceWebClient(WebClient.Builder webClientBuilder) {
         return webClientBuilder
-                .baseUrl("http://user-service")
+                .baseUrl("http://USER-SERVICE")
+                // .baseUrl("http://localhost:8081")
                 .build();
-
     }
 }
-
