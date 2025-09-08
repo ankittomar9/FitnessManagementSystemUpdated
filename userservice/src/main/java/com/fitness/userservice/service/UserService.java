@@ -30,10 +30,8 @@ public class UserService {
             if (repository.existsByEmail(request.getEmail())) {
               //  log.warn("Registration failed - Email already exists: {}", request.getEmail());
                 User existingUser = repository.findByEmail(request.getEmail());
-
-
-
-                response.setUserId(savedUser.getId());
+                UserResponse response = new UserResponse();
+                response.setUserId(existingUser.getId());
                 response.setPassword(savedUser.getPassword()); // Never expose password in response
                 response.setFirstName(savedUser.getFirstName());
                 response.setLastName(savedUser.getLastName());
