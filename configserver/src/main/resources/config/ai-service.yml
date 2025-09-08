@@ -1,0 +1,48 @@
+spring:
+
+  data:
+    mongodb:
+      # Old configuration (commented out)
+      # uri: mongodb://localhost:27017/fitnessrecommendation
+      # database: recommendations
+
+      # New configuration
+      uri: mongodb://localhost:27017/fitnessrecommendation
+      database: recommendations
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+
+
+rabbitmq:
+  exchange:
+    name: fitness-exchange
+  queue:
+    name: activity.queue
+  routing:
+    key: activity.tracking
+
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/
+  instance:
+    instance-id: ${spring.application.name}:${server.port}
+    prefer-ip-address: false
+    hostname: localhost
+    appname: ${spring.application.name}
+    status-page-url: http://localhost:${server.port}/actuator/info
+    health-check-url: http://localhost:${server.port}/actuator/health
+    home-page-url: http://localhost:${server.port}/
+
+server:
+  port: 8083
+
+gemini:
+  api:
+   url: ${GEMINI_API_URL}
+   key: ${GEMINI_API_KEY}
+

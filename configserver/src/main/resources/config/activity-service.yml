@@ -1,0 +1,35 @@
+spring:
+
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017/fitness_activity
+      database: fitness_activity
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+
+server:
+  port: 8082
+
+rabbitmq:
+  exchange:
+   name: fitness-exchange
+  queue:
+   name: activity.queue
+  routing:
+    key: activity.tracking
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/
+  instance:
+    instance-id: ${spring.application.name}:${server.port}
+    prefer-ip-address: false
+    hostname: localhost
+    appname: ${spring.application.name}
+    status-page-url: http://localhost:${server.port}/actuator/info
+    health-check-url: http://localhost:${server.port}/actuator/health
+    home-page-url: http://localhost:${server.port}/

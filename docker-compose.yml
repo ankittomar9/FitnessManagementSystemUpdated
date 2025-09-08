@@ -20,6 +20,26 @@ services:
     networks:
       - fitness-network
 
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.3.3
+    container_name: fitness-keycloak
+    command: start-dev
+    environment:
+      - KEYCLOAK_ADMIN=admin
+      - KEYCLOAK_ADMIN_PASSWORD=admin
+      - KC_HOSTNAME=localhost
+    ports:
+      - "8181:8080"  # Map host port 8181 to container port 8080
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health/ready"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - fitness-network
+    depends_on:
+      - rabbitmq
+
 networks:
   fitness-network:
     driver: bridge
