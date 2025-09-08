@@ -33,7 +33,7 @@ public class UserService {
                 UserResponse response = new UserResponse();
                 response.setUserId(existingUser.getId());
                 response.setPassword(existingUser.getPassword()); // Never expose password in response
-                response.setFirstName(savedUser.getFirstName());
+                response.setFirstName(existingUser.getFirstName());
                 response.setLastName(savedUser.getLastName());
                 response.setEmail(savedUser.getEmail());
                 response.setCreatedAt(savedUser.getCreatedAt());
