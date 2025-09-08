@@ -54,6 +54,7 @@ public class UserService {
             
             UserResponse response = new UserResponse();
             response.setUserId(savedUser.getId());
+            response.setKeycloakId(savedUser.getKeycloakId());
             response.setPassword(savedUser.getPassword()); // Never expose password in response
             response.setFirstName(savedUser.getFirstName());
             response.setLastName(savedUser.getLastName());
