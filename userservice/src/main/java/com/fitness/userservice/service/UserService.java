@@ -32,6 +32,7 @@ public class UserService {
                 User existingUser = repository.findByEmail(request.getEmail());
                 UserResponse response = new UserResponse();
                 response.setUserId(existingUser.getId());
+                response.setKeycloakId(existingUser.getKeycloakId());
                 response.setPassword(existingUser.getPassword()); // Never expose password in response
                 response.setFirstName(existingUser.getFirstName());
                 response.setLastName(existingUser.getLastName());
