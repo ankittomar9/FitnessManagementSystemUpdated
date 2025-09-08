@@ -20,7 +20,17 @@ public class KeyCloakUserSyncFilter implements WebFilter {
     String userId=exchange.getRequest().getHeaders().getFirst("X-User-ID");
         String token=exchange.getRequest().getHeaders().getFirst("Authorization");
 
-
+        if(userId!=null || token!=null){
+            return userService.validateUser(userId)
+            .flatMap(valid->{
+                if(valid){
+                    return chain.filter(exchange);
+                }else{
+                    exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
+                    return exchange.getResponse().setComplete();
+                }
+            });
+        }
     }
 
 

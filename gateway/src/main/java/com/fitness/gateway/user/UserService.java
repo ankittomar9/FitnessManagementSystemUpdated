@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
+import reactor.core.publisher.Mono;
 
 @Slf4j
 @Service
@@ -14,7 +15,7 @@ public class UserService {
 
     private final WebClient userServiceWebClient;
 
-    public boolean validateUser(String userId) {
+    public Mono<Boolean> validateUser(String userId) {
         log.info("Calling User validation API for User with userID: {}", userId);
         if (userId == null || userId.trim().isEmpty()) {
             log.warn("Attempted to validate null or empty user ID");
