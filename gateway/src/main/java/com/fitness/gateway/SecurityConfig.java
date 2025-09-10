@@ -1,11 +1,14 @@
 package com.fitness.gateway;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
+import org.springframework.security.oauth2.jwt.NimbusReactiveJwtDecoder;
+import org.springframework.security.oauth2.jwt.ReactiveJwtDecoder;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.reactive.CorsConfigurationSource;
@@ -30,6 +33,9 @@ public class SecurityConfig {
     private static final List<String> ALLOWED_HEADERS = 
         Arrays.asList("Authorization", "Content-Type", "X-User-ID");
     private static final String API_PATH_PATTERN = "/api/**";
+    
+    @Value("${spring.main.security.oauth2.resourceserver.jwt.jwk-set-uri}")
+    private String jwkSetUri;
 
     /**
      * Configures the security filter chain for the application.
@@ -37,6 +43,18 @@ public class SecurityConfig {
      * @param http The ServerHttpSecurity to configure
      * @return The configured SecurityWebFilterChain
      */
+    /**
+     * Configures the ReactiveJwtDecoder for JWT validation.
+     * Uses the JWK Set URI to fetch public keys for token verification.
+     * 
+     * @return Configured ReactiveJwtDecoder instance
+     */
+    @Bean
+    public ReactiveJwtDecoder reactiveJwtDecoder() {
+        log.info("Configuring ReactiveJwtDecoder with JWK Set URI: {}", jwkSetUri);
+        return NimbusReactiveJwtDecoder.withJwkSetUri(jwkSetUri).build();
+    }
+
     @Bean
     public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
         log.info("Configuring security filter chain");
@@ -57,10 +75,9 @@ public class SecurityConfig {
                 })
                 
                 // Configure OAuth2 Resource Server with JWT
-                .oauth2ResourceServer(oauth2 -> {
-                    oauth2.jwt(Customizer.withDefaults());
-                    log.debug("Configured OAuth2 Resource Server with JWT");
-                })
+                .oauth2ResourceServer(oauth2 -> oauth2
+                    .jwt(jwt -> jwt.jwtDecoder(reactiveJwtDecoder()))
+                )
                 
                 .build();
     }

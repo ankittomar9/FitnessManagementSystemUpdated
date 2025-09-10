@@ -46,6 +46,7 @@ public class UserService {
             User user = new User();
             user.setEmail(request.getEmail());
             user.setPassword(request.getPassword()); // Never log actual passwords
+            user.setKeycloakId(request.getKeycloakId());// get Keycloak ID from request
             user.setFirstName(request.getFirstName());
             user.setLastName(request.getLastName());
 

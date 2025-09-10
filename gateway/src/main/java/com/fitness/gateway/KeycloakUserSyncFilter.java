@@ -57,31 +57,34 @@ public class KeycloakUserSyncFilter implements WebFilter {
         }
 
         if (userId != null && token != null) {
-            String finalUserId = userId;
+            // Create final copies of variables to be used in lambda expressions
+            final String finalUserId = userId;
+            final RegisterRequest finalRegisterRequest = registerRequest;
+            
             log.debug("Initiating user validation for userId: {}", userId);
             
             return userService.validateUser(userId)
                     .flatMap(exists -> {
                         if (!exists) {
-                            log.info("User not found in local database. Attempting to register new user: {}", userId);
+                            log.info("User not found in local database. Attempting to register new user: {}", finalUserId);
                             
-                            if (registerRequest != null) {
-                                return userService.registerUser(registerRequest)
+                            if (finalRegisterRequest != null) {
+                                return userService.registerUser(finalRegisterRequest)
                                         .doOnSuccess(response -> 
-                                            log.info("Successfully registered user: {}", userId)
+                                            log.info("Successfully registered user: {}", finalUserId)
                                         )
                                         .then(Mono.empty());
                             } else {
-                                log.warn("Cannot register user: No registration details available for userId: {}", userId);
+                                log.warn("Cannot register user: No registration details available for userId: {}", finalUserId);
                                 return Mono.empty();
                             }
                         } else {
-                            log.debug("User already exists in local database. Skipping registration for userId: {}", userId);
+                            log.debug("User already exists in local database. Skipping registration for userId: {}", finalUserId);
                             return Mono.empty();
                         }
                     })
                     .then(Mono.defer(() -> {
-                        log.debug("Adding X-User-ID header to request: {}", userId);
+                        log.debug("Adding X-User-ID header to request: {}", finalUserId);
                         ServerHttpRequest mutatedRequest = exchange.getRequest().mutate()
                                 .header(USER_ID_HEADER, finalUserId)
                                 .build();
