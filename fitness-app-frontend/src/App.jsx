@@ -23,7 +23,11 @@ const [authReady,setAuthReady]=useState(false);
         {!token?(
       <Button variant="contained" color="#dc004e"
               onClick={() => logIn()}> Login </Button>
-
+            ):(<div>
+            <pre>{JSON.stringify(tokenData,null,2)}
+            </pre>
+            </div>
+            )}
     </Router>
   )
 }
