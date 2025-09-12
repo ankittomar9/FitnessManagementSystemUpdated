@@ -89,32 +89,13 @@ public class SecurityConfig {
      */
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
-        log.info("Configuring CORS with allowed origins: {}", ALLOWED_ORIGINS);
-        
         CorsConfiguration config = new CorsConfiguration();
-        
-        // Configure allowed origins
-        config.setAllowedOrigins(ALLOWED_ORIGINS);
-        
-        // Configure allowed HTTP methods
-        config.setAllowedMethods(ALLOWED_METHODS);
-        log.debug("Configured allowed methods: {}", ALLOWED_METHODS);
-        
-        // Configure allowed headers
-        config.setAllowedHeaders(ALLOWED_HEADERS);
-        log.debug("Configured allowed headers: {}", ALLOWED_HEADERS);
-        
-        // Allow credentials (cookies, authorization headers) to be exposed
+        config.setAllowedOrigins(List.of("http://localhost:5173"));
+        config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        config.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "X-User-ID"));
         config.setAllowCredentials(true);
-        
-        // Set the max age of the CORS pre-flight request
-        config.setMaxAge(3600L);
-        
-        // Configure CORS for all endpoints under /api/**
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration(API_PATH_PATTERN, config);
-        
-        log.debug("CORS configuration completed for path pattern: {}", API_PATH_PATTERN);
+        source.registerCorsConfiguration("/api/**", config);
         return source;
     }
 }
