@@ -1,19 +1,19 @@
 # Fitness Management System
 
-A microservices-based fitness management platform that provides activity tracking, AI-powered recommendations, and user management.
+A microservices-based fitness management platform that provides activity tracking, AI-powered recommendations, and user management with a modern React-based frontend.
 
 ## 📋 Table of Contents
 - [Architecture Overview](#-architecture-overview)
+  - [Frontend Application](#frontend-application)
   - [API Gateway](#api-gateway)
   - [Config Server](#config-server)
   - [Keycloak Authentication](#-keycloak-authentication)
 - [Prerequisites](#-prerequisites)
 - [Getting Started](#-getting-started)
+- [Frontend Development](#-frontend-development)
 - [Service Details](#-service-details)
 - [API Documentation](#-api-documentation)
 - [Deployment](#-deployment)
-  - [Gateway Configuration](#gateway-configuration)
-  - [Config Server Setup](#config-server-setup)
 - [Development](#-development)
 - [Troubleshooting](#-troubleshooting)
 - [License](#-license)
@@ -21,6 +21,81 @@ A microservices-based fitness management platform that provides activity trackin
 ## 🏗️ Architecture Overview
 
 The system follows a microservices architecture with the following components:
+
+## 🖥️ Frontend Application
+
+The frontend is a modern, responsive React application built with Vite, featuring a clean and intuitive user interface for managing fitness activities and user profiles.
+
+### Technology Stack
+- **Framework**: React 18 with Vite
+- **State Management**: Redux Toolkit
+- **UI Components**: Material-UI (MUI) with Emotion
+- **Routing**: React Router
+- **HTTP Client**: Axios
+- **Authentication**: OAuth2 with PKCE
+- **Date Handling**: date-fns
+
+### Key Features
+- **Activity Management**: View, create, and track fitness activities
+- **User Authentication**: Secure login with Keycloak integration
+- **Responsive Design**: Works on desktop and mobile devices
+- **Real-time Updates**: Dynamic UI updates using React hooks
+- **Form Validation**: Client-side form validation
+
+### Project Structure
+```
+fitness-app-frontend/
+├── public/              # Static files
+├── src/
+│   ├── assets/          # Images, fonts, etc.
+│   ├── components/      # Reusable UI components
+│   │   ├── Activity.jsx
+│   │   ├── ActivityDetail.jsx
+│   │   ├── ActivityForm.jsx
+│   │   └── ActivityList.jsx
+│   ├── services/        # API services
+│   ├── store/           # Redux store configuration
+│   ├── App.jsx          # Main application component
+│   └── main.jsx         # Application entry point
+└── ...
+```
+
+### Getting Started with Frontend
+
+1. Navigate to the frontend directory:
+   ```bash
+   cd fitness-app-frontend
+   ```
+
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+3. Start the development server:
+   ```bash
+   npm run dev
+   ```
+
+4. Open your browser and navigate to:
+   ```
+   http://localhost:5173
+   ```
+
+### Environment Variables
+Create a `.env` file in the frontend root with the following variables:
+```
+VITE_API_BASE_URL=http://localhost:8080
+VITE_KEYCLOAK_URL=your-keycloak-url
+VITE_KEYCLOAK_REALM=your-realm
+VITE_KEYCLOAK_CLIENT_ID=your-client-id
+```
+
+### Available Scripts
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
+- `npm run preview` - Preview production build
+- `npm run lint` - Run ESLint
 
 ## 🚀 API Gateway
 
@@ -289,58 +364,42 @@ For production deployment, consider using:
 
 ## 🛠 Development
 
-### Code Style
-- Follow Google Java Style Guide
-- Use Lombok annotations to reduce boilerplate
-- Keep methods small and focused
-- Write meaningful commit messages
+### Frontend Development
 
-### Branching Strategy
-- `main`: Production-ready code
-- `develop`: Integration branch for features
-- `feature/*`: New features
-- `bugfix/*`: Bug fixes
-- `hotfix/*`: Critical production fixes
+#### Adding New Dependencies
+```bash
+# Add a production dependency
+npm install package-name
 
-## 🔑 Security Best Practices
+# Add a development dependency
+npm install --save-dev package-name
+```
 
-1. **Keycloak Configuration**:
-   - Change default admin credentials in production
-   - Use HTTPS in production environments
-   - Regularly rotate client secrets
-   - Set appropriate token expiration times
+#### Code Style
+- Follow the existing component structure
+- Use functional components with hooks
+- Keep components small and focused
+- Use meaningful component and variable names
+- Add PropTypes for component props
 
-2. **JWT Validation**:
-   - Tokens are validated using the JWKS endpoint
-   - Signature verification is enforced
-   - Token expiration is checked
+#### State Management
+- Use Redux for global state
+- Keep local component state for UI-specific state
+- Use Redux Toolkit's `createSlice` for reducers
 
-3. **Rate Limiting**:
-   - Implement rate limiting on authentication endpoints
-   - Monitor for suspicious login attempts
+#### Testing
+Run the test suite:
+```bash
+npm test
+```
 
-## 🐛 Troubleshooting
+## 🤝 Contributing
 
-### Common Issues
-
-#### Keycloak Issues
-- **Connection Refused**: Ensure Keycloak container is running (`docker ps`)
-- **Invalid Token**: Verify token audience and issuer match Keycloak configuration
-- **CORS Errors**: Check allowed origins in Keycloak client settings
-
-#### Authentication Issues
-- **401 Unauthorized**: Verify token is valid and not expired
-- **403 Forbidden**: Check user roles and permissions in Keycloak
-- **Token Validation Failed**: Ensure JWKS endpoint is accessible and returning keys
-1. **Port Conflicts**: Ensure required ports are not in use
-2. **Dependency Issues**: Run `mvn clean install -U`
-3. **Database Connection**: Verify MongoDB is running and accessible
-4. **RabbitMQ**: Check if RabbitMQ is running and the queue is created
-
-### Logs
-Check logs in:
-- `logs/` directory for each service
-- Docker container logs: `docker logs <container_id>`
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
 
 ## 📄 License
 
